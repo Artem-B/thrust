@@ -25,9 +25,17 @@ my_env.Append(CPPPATH = Dir('.').srcnode())
 sources = []
 extensions  = ['*.cu', '*.cpp']
 
+excluded_files = [
+      'complex_transform.cu', # needs builtins
+      'random.cu', # needs builtins?
+      'complex.cu',# needs builtins
+      'reduce.cu',  # illegal memory access
+      'reduce_large.cu',  # illegal memory access
+  ] if my_env['cuda_compiler'] == 'clang' else []
+
 # gather sources in the current directorie
 for ext in extensions:
-  sources.extend(my_env.Glob(ext))
+  sources.extend(my_env.FilteredGlob(ext, excluded_files))
 
 # gather sources from directories
 sources.extend(SConscript('backend/SConscript', exports='env'))
@@ -57,4 +65,3 @@ my_env.Alias('run_tests', [tester], tester[0].abspath)
 
 # build children
 SConscript('trivial_tests/SConscript', exports='env')
-

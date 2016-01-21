@@ -23,6 +23,11 @@ def RecursiveGlob(env, pattern, directory = Dir('.'), exclude = '\B'):
       result.extend(RecursiveGlob(env, pattern, n, exclude))
   return result
 
+def FilteredGlob(env, pattern, omit=[],
+  ondisk=True, source=False, strings=False):
+    return filter(
+      lambda f: os.path.basename(f.path) not in omit,
+      env.Glob(pattern))
 
 # map features to the list of compiler switches implementing them
 gnu_compiler_flags = {
@@ -428,6 +433,8 @@ Help(vars.GenerateHelpText(master_env))
 
 # enable RecursiveGlob
 master_env.AddMethod(RecursiveGlob)
+master_env.AddMethod(FilteredGlob);
+
 
 # add CUDA's lib dir to LD_LIBRARY_PATH so that we can execute commands
 # which depend on shared libraries (e.g., cudart)
